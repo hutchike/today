@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+
+# A simple "todo" list for today - by Kevin Hutchinson
+
+require 'yaml'
+
+class Today
+
+  FILENAME = File.join(ENV['HOME'], '.today')
+
+  def initialize
+    @today = File.exist?(FILENAME) ? YAML.load_file(FILENAME) : []
+    parse_command()
+  end
+
+  def parse_command
+    if ARGV[0] == 'help'
+      show_help()
+      return # without showing the task list
+    elsif ARGV[0] == 'done'
+      remove_task(ARGV[1].to_i)
+    elsif ARGV.count > 0
+      add_task(ARGV.join(' '))
+    end
+    show_task_list() or show_help()
+  end
+
+  def add_task(task)
+    @today.push(task)
+    save()
+  end
+
+  def remove_task(i)
+    i = 1 if i < 1
+    @today.slice!(i-1) if i <= @today.count
+    save()
+  end
+
+  def save
+    File.open(FILENAME, 'w') do |f|
+      f.write @today.to_yaml
+    end
+  end
+
+  def show_task_list
+    @today.each_with_index do |task, i|
+      puts "#{i+1} #{task}"
+    end
+    return @today.count > 0
+  end
+
+  def show_help
+    puts <<End_of_help
+This is a simple "todo" list for today's tasks.
+Here's how to use the "today" command:
+
+> today help              - show this help info
+> today                   - list all tasks to finish today
+> today get it finished   - add the task "get it finished"
+> today done              - remove top item from the list
+> today done 2            - remove item 2 from the list
+
+End_of_help
+  end
+end
+
+Today.new
+
+__END__
