@@ -6,10 +6,10 @@ require 'yaml'
 
 class Today
 
-  FILENAME = File.join(ENV['HOME'], '.today')
+  HIDDEN_YAML_FILE = File.join(ENV['HOME'], '.today')
 
   def initialize
-    @today = File.exist?(FILENAME) ? YAML.load_file(FILENAME) : []
+    @task_list = load_tasks()
     parse_command()
   end
 
@@ -26,27 +26,31 @@ class Today
   end
 
   def add_task(task)
-    @today.push(task)
-    save()
+    @task_list.push(task)
+    save_tasks()
   end
 
-  def remove_task(i)
+  def remove_task(i = 1) # remove the first task by default
     i = 1 if i < 1
-    @today.slice!(i-1) if i <= @today.count
-    save()
+    @task_list.slice!(i-1) if i <= @task_list.count
+    save_tasks()
   end
 
-  def save
-    File.open(FILENAME, 'w') do |f|
-      f.write @today.to_yaml
+  def load_tasks
+    return File.exist?(HIDDEN_YAML_FILE) ? YAML.load_file(HIDDEN_YAML_FILE) : []
+  end
+
+  def save_tasks
+    File.open(HIDDEN_YAML_FILE, 'w') do |f|
+      f.write @task_list.to_yaml
     end
   end
 
   def show_task_list
-    @today.each_with_index do |task, i|
+    @task_list.each_with_index do |task, i|
       puts "#{i+1} #{task}"
     end
-    return @today.count > 0
+    return @task_list.count > 0
   end
 
   def show_help
