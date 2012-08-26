@@ -48,9 +48,9 @@ class Today
 
   def show_task_list
     @task_list.each_with_index do |task, i|
-      puts "(#{i+1}) #{task}"
+      puts "[#{i+1}] #{task}" # e.g. "[1] get it finished"
     end
-    return @task_list.count > 0
+    return @task_list.count > 0 # i.e. did we show anything?
   end
 
   def show_help
