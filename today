@@ -48,7 +48,7 @@ class Today
 
   def show_task_list
     @task_list.each_with_index do |task, i|
-      puts "#{i+1} #{task}"
+      puts "(#{i+1}) #{task}"
     end
     return @task_list.count > 0
   end
