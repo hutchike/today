@@ -14,10 +14,10 @@ class Today
   end
 
   def parse_command
-    if ARGV[0] == 'help'
+    if ARGV[0] =~ /^-*help$/
       show_help()
       return # without showing the task list
-    elsif ARGV[0] == 'done'
+    elsif ARGV[0] =~ /^-*done$/
       remove_task(ARGV[1].to_i)
     elsif ARGV.count > 0
       add_task(ARGV.join(' '))
