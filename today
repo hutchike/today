@@ -6,7 +6,11 @@ require 'yaml'
 
 class Today
 
-  HIDDEN_YAML_FILE = File.join(ENV['HOME'], '.today')
+  TODAY_HOST = ENV['TODAY_HOST'] # optionally where to sync - a remote hostname
+  TODAY_USER = ENV['TODAY_USER'] || ENV['USER'] # the optional user for syncing
+  TODAY_PASS = ENV['TODAY_PASS'] # not needed with ".ssh/authorized_keys2" file
+  TODAY_FILE = ENV['TODAY_FILE'] || '.today'
+  TODAY_PATH = File.join(ENV['HOME'], TODAY_FILE)
 
   def initialize
     @task_list = load_tasks()
@@ -37,12 +41,27 @@ class Today
   end
 
   def load_tasks
-    return File.exist?(HIDDEN_YAML_FILE) ? YAML.load_file(HIDDEN_YAML_FILE) : []
+    sync_tasks(:get)
+    return File.exist?(TODAY_PATH) ? YAML.load_file(TODAY_PATH) : []
   end
 
   def save_tasks
-    File.open(HIDDEN_YAML_FILE, 'w') do |f|
+    File.open(TODAY_PATH, 'w') do |f|
       f.write @task_list.to_yaml
+    end
+    sync_tasks(:put)
+  end
+
+  def sync_tasks(action)
+    return unless TODAY_HOST
+    require 'net/scp'
+    local = TODAY_PATH
+    remote = TODAY_FILE
+    case action
+    when :put
+      Net::SCP.upload!(TODAY_HOST, TODAY_USER, local, remote, password: TODAY_PASS)
+    when :get
+      Net::SCP.download!(TODAY_HOST, TODAY_USER, remote, local, password: TODAY_PASS)
     end
   end
 
