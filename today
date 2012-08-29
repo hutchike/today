@@ -6,6 +6,20 @@ require 'yaml'
 
 class Today
 
+  def show_help
+    puts <<End_of_help
+This is a simple "todo" list for today's tasks.
+Here's how to use the "today" command:
+
+> today help              - show this help info
+> today                   - list all tasks to finish today
+> today get it finished   - add the task "get it finished"
+> today done              - remove top item from the list
+> today done 2            - remove item 2 from the list
+
+End_of_help
+  end
+
   TODAY_HOST = ENV['TODAY_HOST'] # optionally where to sync - a remote hostname
   TODAY_USER = ENV['TODAY_USER'] || ENV['USER'] # the optional user for syncing
   TODAY_PASS = ENV['TODAY_PASS'] # not needed with ".ssh/authorized_keys2" file
@@ -70,20 +84,6 @@ class Today
       puts "[#{i+1}] #{task}" # e.g. "[1] get it finished"
     end
     return @task_list.count > 0 # i.e. did we show anything?
-  end
-
-  def show_help
-    puts <<End_of_help
-This is a simple "todo" list for today's tasks.
-Here's how to use the "today" command:
-
-> today help              - show this help info
-> today                   - list all tasks to finish today
-> today get it finished   - add the task "get it finished"
-> today done              - remove top item from the list
-> today done 2            - remove item 2 from the list
-
-End_of_help
   end
 end
 
