@@ -64,7 +64,7 @@ End_of_help
     save_tasks()
   end
 
-  def move_task(i = 1, place) # put the selected task in first or last place
+  def move_task(i, place) # put the selected task in first or last place
     i = 1 if i < 1
     method = case place
     when :first
@@ -95,9 +95,9 @@ End_of_help
     remote = TODAY_FILE
     case action
     when :put
-      Net::SCP.upload!(TODAY_HOST, TODAY_USER, local, remote, password: TODAY_PASS)
+      Net::SCP.upload!(TODAY_HOST, TODAY_USER, local, remote, :password => TODAY_PASS)
     when :get
-      Net::SCP.download!(TODAY_HOST, TODAY_USER, remote, local, password: TODAY_PASS)
+      Net::SCP.download!(TODAY_HOST, TODAY_USER, remote, local, :password => TODAY_PASS)
     end
   end
 
