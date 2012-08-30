@@ -17,6 +17,7 @@ Here's how to use the "today" command:
 > today done              - remove top item from the list
 > today done 2            - remove item 2 from the list
 > today first 3           - move item 3 to top of list
+> today last 4            - move item 4 to end of list
 
 End_of_help
   end
@@ -34,14 +35,17 @@ End_of_help
 
   def parse_command
     cmd = $1 if ARGV[0] =~ /^-*(\w+)$/
-    num = ARGV[1].to_i
+    arg = ARGV[1]
+    num = arg.to_i
     case cmd
     when 'help'
-      return show_help() # don't show the task list
+      return show_help()
     when 'done'
-      remove_task(num)
+      delete_task(arg)
     when 'first'
-      first_task(num)
+      move_task(num, :first)
+    when 'last'
+      move_task(num, :last)
     else
       add_task(ARGV.join(' ')) if ARGV.count > 0
     end
@@ -53,15 +57,22 @@ End_of_help
     save_tasks()
   end
 
-  def remove_task(i = 1) # remove the first task by default
+  def delete_task(arg = '1') # delete the first task by default
+    i = (arg == 'last' ? @task_list.count : arg.to_i)
     i = 1 if i < 1
     @task_list.slice!(i-1) if i <= @task_list.count
     save_tasks()
   end
 
-  def first_task(i = 1) # put the selected task first
+  def move_task(i = 1, place) # put the selected task in first or last place
     i = 1 if i < 1
-    @task_list.unshift( @task_list.slice!(i-1) ) if i <= @task_list.count
+    method = case place
+    when :first
+      :unshift
+    when :last
+      :push
+    end
+    @task_list.send( method, @task_list.slice!(i-1) ) if i <= @task_list.count
     save_tasks()
   end
 
