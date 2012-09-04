@@ -40,11 +40,11 @@ End_of_help
 
     case cmd
     when 'done'
-      delete_task(args)
+      delete_tasks(args)
     when 'first'
-      move_task(args, :first)
+      move_tasks(args, :first)
     when 'last'
-      move_task(args, :last)
+      move_tasks(args, :last)
     else
       add_task(ARGV.join(' ')) if ARGV.count > 0
     end
@@ -56,7 +56,7 @@ End_of_help
     save_tasks()
   end
 
-  def delete_task(args)
+  def delete_tasks(args)
     args = ['1'] if args.count == 0 # delete the first task by default
     args.each do |arg|
       i = (arg == 'last' ? @task_list.count : arg.to_i)
@@ -67,7 +67,7 @@ End_of_help
     save_tasks()
   end
 
-  def move_task(args, place) # put the selected task in first or last place
+  def move_tasks(args, place) # put the selected task in first or last place
     moved = []
     args.each do |arg|
       i = arg.to_i
