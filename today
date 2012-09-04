@@ -15,9 +15,9 @@ Here's how to use the "today" command:
 > today                   - list all tasks to finish today
 > today get it finished   - add the task "get it finished"
 > today done              - remove top item from the list
-> today done 2            - remove item 2 from the list
-> today first 3           - move item 3 to top of list
-> today last 4            - move item 4 to end of list
+> today done 2 3          - remove items 2 & 3 from the list
+> today first 4 5         - move items 4 & 5 to top of list
+> today last 6 7          - move items 6 & 7 to end of list
 
 End_of_help
   end
@@ -35,17 +35,16 @@ End_of_help
 
   def parse_command
     cmd = $1 if ARGV[0] =~ /^-*(\w+)$/
-    arg = ARGV[1]
-    num = arg.to_i
-    return show_help() if cmd == 'help' && arg == nil
+    args = ARGV[1..-1]
+    return show_help() if cmd == 'help' && args.count == 0
 
     case cmd
     when 'done'
-      delete_task(arg)
+      delete_task(args)
     when 'first'
-      move_task(num, :first)
+      move_task(args, :first)
     when 'last'
-      move_task(num, :last)
+      move_task(args, :last)
     else
       add_task(ARGV.join(' ')) if ARGV.count > 0
     end
@@ -57,22 +56,33 @@ End_of_help
     save_tasks()
   end
 
-  def delete_task(arg = '1') # delete the first task by default
-    i = (arg == 'last' ? @task_list.count : arg.to_i)
-    i = 1 if i < 1
-    @task_list.slice!(i-1) if i <= @task_list.count
+  def delete_task(args)
+    args = ['1'] if args.count == 0 # delete the first task by default
+    args.each do |arg|
+      i = (arg == 'last' ? @task_list.count : arg.to_i)
+      i = 1 if i < 1
+      @task_list[i-1] = nil
+    end
+    @task_list = @task_list.select { |task| task != nil }
     save_tasks()
   end
 
-  def move_task(i, place) # put the selected task in first or last place
-    i = 1 if i < 1
-    method = case place
-    when :first
-      :unshift
-    when :last
-      :push
+  def move_task(args, place) # put the selected task in first or last place
+    first, middle, last = [], [], []
+    moves = {}
+    args.each do |arg|
+      i = arg.to_i
+      i = 1 if i < 1
+      moves[i] = place
     end
-    @task_list.send( method, @task_list.slice!(i-1) ) if i <= @task_list.count
+    @task_list.each_with_index do |task, i|
+      case moves[i+1]
+      when :first; first << task
+      when :last; last << task
+      else; middle << task
+      end
+    end
+    @task_list = first + middle + last
     save_tasks()
   end
 
