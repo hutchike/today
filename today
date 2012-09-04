@@ -37,9 +37,9 @@ End_of_help
     cmd = $1 if ARGV[0] =~ /^-*(\w+)$/
     arg = ARGV[1]
     num = arg.to_i
+    return show_help() if cmd == 'help' && arg == nil
+
     case cmd
-    when 'help'
-      return show_help()
     when 'done'
       delete_task(arg)
     when 'first'
