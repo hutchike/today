@@ -68,21 +68,20 @@ End_of_help
   end
 
   def move_task(args, place) # put the selected task in first or last place
-    first, middle, last = [], [], []
-    moves = {}
+    moved = []
     args.each do |arg|
       i = arg.to_i
       i = 1 if i < 1
-      moves[i] = place
-    end
-    @task_list.each_with_index do |task, i|
-      case moves[i+1]
-      when :first; first << task
-      when :last; last << task
-      else; middle << task
+      if i <= @task_list.count
+        moved << @task_list[i-1]
+        @task_list[i-1] = nil
       end
     end
-    @task_list = first + middle + last
+    static = @task_list.select { |task| task != nil }
+    @task_list = case place
+    when :first; moved + static
+    when :last; static + moved
+    end
     save_tasks()
   end
 
