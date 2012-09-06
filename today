@@ -27,6 +27,7 @@ End_of_help
   TODAY_PASS = ENV['TODAY_PASS'] # not needed with ".ssh/authorized_keys2" file
   TODAY_FILE = ENV['TODAY_FILE'] || '.today'
   TODAY_PATH = File.join(ENV['HOME'], TODAY_FILE)
+  ARCHIVE_PATH = TODAY_PATH + '-archive'
 
   def initialize
     @task_list = load_tasks()
@@ -57,14 +58,17 @@ End_of_help
   end
 
   def delete_tasks(args)
+    completed_tasks = []
     args = ['1'] if args.count == 0 # delete the first task by default
     args.each do |arg|
       i = (arg == 'last' ? @task_list.count : arg.to_i)
       i = 1 if i < 1
+      completed_tasks << @task_list[i-1]
       @task_list[i-1] = nil
     end
     @task_list = @task_list.select { |task| task != nil }
     save_tasks()
+    archive_tasks(completed_tasks)
   end
 
   def move_tasks(args, place) # put the selected task in first or last place
@@ -95,6 +99,12 @@ End_of_help
       f.write @task_list.to_yaml
     end
     sync_tasks(:put)
+  end
+
+  def archive_tasks(completed_tasks)
+    File.open(ARCHIVE_PATH, 'a') do |f|
+      f.write "#{Time.now} #{completed_tasks.to_yaml}"
+    end
   end
 
   def sync_tasks(action)
