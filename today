@@ -14,6 +14,7 @@ Here's how to use the "today" command:
 > today help              - show this help info
 > today                   - list all tasks to finish today
 > today get it finished   - add the task "get it finished"
+> today first ask Bob     - add "ask Bob" as a first task
 > today done              - remove top item from the list
 > today done 2 3          - remove items 2 & 3 from the list
 > today first 4 5         - move items 4 & 5 to top of list
@@ -43,7 +44,12 @@ End_of_help
     when 'done'
       delete_tasks(args)
     when 'first'
-      move_tasks(args, :first)
+      if args[0].to_i > 0
+        move_tasks(args, :first)
+      elsif args.count > 0
+        add_task(args.join(' '))
+        move_tasks([@task_list.count], :first)
+      end
     when 'last'
       move_tasks(args, :last)
     else
