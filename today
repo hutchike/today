@@ -13,6 +13,7 @@ Here's how to use the "today" command:
 
 > today help              - show this help info
 > today                   - list all tasks to finish today
+> today list Bob          - list all tasks matching "Bob"
 > today get it finished   - add the task "get it finished"
 > today first ask Bob     - add "ask Bob" as a first task
 > today done              - remove top item from the list
@@ -50,6 +51,8 @@ End_of_help
         add_task(args.join(' '))
         move_tasks([@task_list.count], :first)
       end
+    when 'list'
+      return list_tasks(args)
     when 'last'
       move_tasks(args, :last)
     else
@@ -75,6 +78,18 @@ End_of_help
     @task_list = @task_list.select { |task| task != nil }
     save_tasks()
     archive_tasks(completed_tasks)
+  end
+
+  def list_tasks(args)
+    tasks = []
+    @task_list.each do |task|
+      is_match = (args.count == 0)
+      args.each do |arg|
+        is_match = true if task =~ Regexp.new(arg, true) # case insensitive
+      end
+      tasks << (is_match ? task : nil)
+    end
+    show_task_list(tasks)
   end
 
   def move_tasks(args, place) # put the selected task in first or last place
@@ -126,11 +141,16 @@ End_of_help
     end
   end
 
-  def show_task_list
+  def show_task_list(tasks = nil)
+    tasks ||= @task_list
+    showing = 0
     puts
-    @task_list.each_with_index do |task, i|
+    tasks.each_with_index do |task, i|
+      next unless task
+      showing += 1
       puts "[#{i+1}] #{task}" # e.g. "[1] get it finished"
     end
+    puts "No tasks found" unless showing > 0
     puts
     return @task_list.count > 0 # i.e. did we show anything?
   end
