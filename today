@@ -134,15 +134,15 @@ End_of_help
     require 'net/scp'
     local = TODAY_PATH
     remote = TODAY_FILE
-    case action
-    when :put
-      Net::SCP.upload!(TODAY_HOST, TODAY_USER, local, remote, :password => TODAY_PASS)
-    when :get
-      begin
-        Net::SCP.download!(TODAY_HOST, TODAY_USER, remote, local, :password => TODAY_PASS)
-      rescue Exception => e
-        # if the file doesn't exist, just ignore it
+    begin
+      case action
+      when :put
+        Net::SCP.upload!(TODAY_HOST, TODAY_USER, local, remote, :password => TODAY_PASS)
+      when :get
+          Net::SCP.download!(TODAY_HOST, TODAY_USER, remote, local, :password => TODAY_PASS)
       end
+    rescue Exception => e
+      # if SCP fails, ignore it
     end
   end
 
