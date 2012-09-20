@@ -27,7 +27,7 @@ End_of_help
   TODAY_HOST = ENV['TODAY_HOST'] # optionally where to sync - a remote hostname
   TODAY_USER = ENV['TODAY_USER'] || ENV['USER'] # the optional user for syncing
   TODAY_PASS = ENV['TODAY_PASS'] # not needed with ".ssh/authorized_keys2" file
-  TODAY_FILE = ENV['TODAY_FILE'] || '.today'
+  TODAY_FILE = ENV['TODAY_FILE'] || ".#{$0}" # the command name (allow aliases)
   TODAY_PATH = File.join(ENV['HOME'], TODAY_FILE)
   ARCHIVE_PATH = TODAY_PATH + '-archive'
 
