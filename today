@@ -8,16 +8,17 @@ class Today
 
   def show_help
     puts <<End_of_help
-This is a simple "todo" list for today's tasks.
+This is a simple to-do list for today's tasks.
 Here's how to use the "today" command:
 
 > #{TODAY_PROG} help              - show this help info
 > #{TODAY_PROG}                   - list all tasks to finish today
-> #{TODAY_PROG} list Bob          - list all tasks matching "Bob"
+> #{TODAY_PROG} grep Bob          - find all tasks matching "Bob"
 > #{TODAY_PROG} get it finished   - add the task "get it finished"
 > #{TODAY_PROG} first ask Bob     - add "ask Bob" as a first task
-> #{TODAY_PROG} done              - remove top item from the list
-> #{TODAY_PROG} done 2 3          - remove items 2 & 3 from the list
+> #{TODAY_PROG} del               - remove top item from the list
+> #{TODAY_PROG} done              - remove and archive the top item
+> #{TODAY_PROG} done 2 3          - remove and archive items 2 & 3
 > #{TODAY_PROG} first 4 5         - move items 4 & 5 to top of list
 > #{TODAY_PROG} last 6 7          - move items 6 & 7 to end of list
 
@@ -43,6 +44,8 @@ End_of_help
     return show_help() if cmd == 'help' && args.count == 0
 
     case cmd
+    when 'del'
+      delete_tasks(args, quiet: true)
     when 'done'
       delete_tasks(args)
     when 'first'
@@ -52,7 +55,7 @@ End_of_help
         add_task(args.join(' '))
         move_tasks([@task_list.count], :first)
       end
-    when 'list'
+    when 'grep'
       return list_tasks(args)
     when 'last'
       move_tasks(args, :last)
@@ -67,7 +70,7 @@ End_of_help
     save_tasks()
   end
 
-  def delete_tasks(args)
+  def delete_tasks(args, opts={})
     completed_tasks = []
     args = ['1'] if args.count == 0 # delete the first task by default
     args.each do |arg|
@@ -78,7 +81,7 @@ End_of_help
     end
     @task_list = @task_list.select { |task| task != nil }
     save_tasks()
-    archive_tasks(completed_tasks)
+    archive_tasks(completed_tasks) unless opts[:quiet]
   end
 
   def list_tasks(args)
