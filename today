@@ -21,6 +21,7 @@ Here's how to use the "today" command:
 > #{TODAY_PROG} done 2 3          - remove and archive items 2 & 3
 > #{TODAY_PROG} first 4 5         - move items 4 & 5 to top of list
 > #{TODAY_PROG} last 6 7          - move items 6 & 7 to end of list
+> #{TODAY_PROG} vi[m]             - edit the file listing the tasks
 
 End_of_help
   end
@@ -59,6 +60,8 @@ End_of_help
       return list_tasks(args)
     when 'last'
       move_tasks(args, :last)
+    when 'vi', 'vim'
+      edit_today_file(cmd)
     else
       add_task(ARGV.join(' ')) if ARGV.count > 0
     end
@@ -82,6 +85,10 @@ End_of_help
     @task_list = @task_list.select { |task| task != nil }
     save_tasks()
     archive_tasks(completed_tasks) unless opts[:quiet]
+  end
+
+  def edit_today_file(cmd)
+    system "#{cmd} #{TODAY_PATH}"
   end
 
   def list_tasks(args)
